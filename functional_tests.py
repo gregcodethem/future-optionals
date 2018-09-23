@@ -23,7 +23,7 @@ class NewVisitorTest(unittest.TestCase):
         # future optional betting
         self.assertIn('Future Optional Betting', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('Future Optional Betting', header_text)
+        self.assertIn('Your future optional bets', header_text)
 
         # She is invited to enter a smarkets web address
         inputbox = self.browser.find_element_by_id('id_new_item')
@@ -47,7 +47,8 @@ class NewVisitorTest(unittest.TestCase):
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(any(row.text == 'fc-barcelona-vs-girona-fc'
-                            for row in rows)
+                            for row in rows),
+                        "Football match did not appear in table"
                         )
 
         # The website assumes that there has been
