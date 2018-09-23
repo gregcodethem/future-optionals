@@ -19,7 +19,7 @@ class NewVisitorTest(unittest.TestCase):
 
         # She notices the page title and header mention
         # future optional betting
-        self.assertIn('Future optional betting', self.browser.title)
+        self.assertIn('Future Optional Betting', self.browser.title)
 
         self.fail('Finish the test!')
 
