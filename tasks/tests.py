@@ -1,3 +1,4 @@
+from tasks.models import Match
 from django.test import TestCase
 from .views import convert_smarkets_web_address_to_match_name
 
@@ -34,3 +35,23 @@ class HomePageTest(TestCase):
         self.assertNotIn(smarkets_event_address_text,
                          response.content.decode(),
                          'smarkets_event_address_text found in html response')
+
+
+class ItemModelTest(TestCase):
+
+    def test_saving_and_retrieving_items(self):
+        first_match = Match()
+        first_match.text = 'The first match'
+        first_match.save()
+
+        second_match = Match()
+        second_match.text = 'The second match'
+        second_match.save()
+
+        saved_matches = Match.objects.all()
+        self.assertEqual(saved_matches.count(), 2)
+
+        first_saved_match = saved_matches[0]
+        second_saved_match = saved_matches[1]
+        self.assertEqual(first_saved_match.text, 'The first match')
+        self.assertEqual(second_saved_match.text, 'The second match')
