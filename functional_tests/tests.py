@@ -1,10 +1,10 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
-import unittest
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -13,7 +13,7 @@ class NewVisitorTest(unittest.TestCase):
         self.browser.quit()
 
     def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
+        table = self.browser.find_element_by_id('id_matches_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
@@ -22,7 +22,7 @@ class NewVisitorTest(unittest.TestCase):
         # Louise has heard about a new locally hosted
         # future betting app.
         # She goes to check out its homepage
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mention
         # future optional betting
@@ -48,9 +48,10 @@ class NewVisitorTest(unittest.TestCase):
         # the name of this market
         # so that the Louise knows it's the right market.
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(2)
+        time.sleep(4)
 
-        table = self.browser.find_element_by_id('id_new_smarkets_event_address')
+        table = self.browser.find_element_by_id(
+            'id_matches_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(any(row.text == 'fc-barcelona-vs-girona-fc'
                             for row in rows),
@@ -63,11 +64,12 @@ class NewVisitorTest(unittest.TestCase):
         # She enters:
         # https://smarkets.com/event/957182/sport/football/league-cup/
         # 2018/09/25/wolverhampton-vs-leicester
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.browser.find_element_by_id(
+            'id_new_smarkets_event_address')
         inputbox.send_keys('https://smarkets.com/event/957182/sport/'
                            'football/league-cup/2018/09/25/'
                            'wolverhampton-vs-leicester')
-        inputboxe.send_keys(Keys.ENTER)
+        inputbox.send_keys(Keys.ENTER)
         time.sleep(2)
 
         # The page updates again,
@@ -114,6 +116,3 @@ class NewVisitorTest(unittest.TestCase):
         # Placed with smarkets
 
         # Satisfied, she goes back to sleep
-
-if __name__ == '__main__':
-    unittest.main()

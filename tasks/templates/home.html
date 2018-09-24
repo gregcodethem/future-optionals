@@ -9,10 +9,10 @@
 			{% csrf_token %}
 		</form>
 
-		<table id="id_list_table">
+		<table id="id_matches_table">
 			{% for match in matches %}
 				<tr><td>{{ match.text }}</td></tr>
-			{% endfor %}}
+			{% endfor %}
 		</table>
 	</body>
 </html>
