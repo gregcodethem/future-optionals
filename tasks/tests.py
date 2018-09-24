@@ -15,8 +15,8 @@ class HomePageTest(TestCase):
         self.assertEqual(Match.objects.count(), 1)
         new_match = Match.objects.first()
         self.assertEqual(new_match.text, 'A new item')
-        self.assertIn('A new item', response.content.decode())
-        self.assertTemplateUsed(response, 'home.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
 
     def test_smarkets_event_web_address_converted_to_match_name(self):
         smarkets_event_address_text = ('https://smarkets.com/'
