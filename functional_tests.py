@@ -50,13 +50,30 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         time.sleep(2)
 
-        table = self.browser.find_element_by_id('id_list_table')
+        table = self.browser.find_element_by_id('id_new_smarkets_event_address')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(any(row.text == 'fc-barcelona-vs-girona-fc'
                             for row in rows),
                         f"Football match did not appear in table, "
                         f"contents were:\n{table.text}"
                         )
+
+        # There is still a text box inviting Louise
+        # to add another item.
+        # She enters:
+        # https://smarkets.com/event/957182/sport/football/league-cup/
+        # 2018/09/25/wolverhampton-vs-leicester
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('https://smarkets.com/event/957182/sport/'
+                           'football/league-cup/2018/09/25/'
+                           'wolverhampton-vs-leicester')
+        inputboxe.send_keys(Keys.ENTER)
+        time.sleep(2)
+
+        # The page updates again,
+        # and now shows both items on her list.
+        self.check_for_row_in_list_table('fc-barcelona-vs-girona-fc')
+        self.check_for_row_in_list_table('wolverhampton-vs-leicester')
 
         # The website assumes that there has been
         # an amount bet on this event with the 2-0 refund offer
