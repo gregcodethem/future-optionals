@@ -20,7 +20,8 @@ class HomePageTest(TestCase):
         response = self.client.post(
             '/', data={'smarkets_event_address_text': 'A new item'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
+        self.assertEqual(response['location'],
+                         '/tasks/the-only-task-in-the-world/')
 
     def test_smarkets_event_web_address_converted_to_match_name(self):
         smarkets_event_address_text = ('https://smarkets.com/'
@@ -48,21 +49,12 @@ class HomePageTest(TestCase):
                          response.content.decode(),
                          'smarkets_event_address_text found in html response')
 
-    def test_only_saves_items_when_necessary(self):
+    def test_only_saves_matches_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Match.objects.count(), 0)
 
-    def test_displays_all_list_items(self):
-        Match.objects.create(text='match 1')
-        Match.objects.create(text='match 2')
 
-        response = self.client.get('/')
-
-        self.assertIn('match 1', response.content.decode())
-        self.assertIn('match 2', response.content.decode())
-
-
-class ItemModelTest(TestCase):
+class MatchModelTest(TestCase):
 
     def test_saving_and_retrieving_items(self):
         first_match = Match()
@@ -80,3 +72,15 @@ class ItemModelTest(TestCase):
         second_saved_match = saved_matches[1]
         self.assertEqual(first_saved_match.text, 'The first match')
         self.assertEqual(second_saved_match.text, 'The second match')
+
+
+class TaskViewTest(TestCase):
+
+    def test_displays_all_items(self):
+        Match.objects.create(text='match 1')
+        Match.objects.create(text='match 2')
+
+        response = self.client.get('/tasks/the-only-task-in-the-world/')
+
+        self.assertContains(response, 'match 1')
+        self.assertContains(response, 'match 2')

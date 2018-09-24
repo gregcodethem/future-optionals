@@ -27,14 +27,14 @@ class NewVisitorTest(LiveServerTestCase):
             try:
                 table = self.browser.find_element_by_id('id_matches_table')
                 rows = table.find_elements_by_tag_name('tr')
-                self.assertIn('row_text', [row.text for row in rows])
+                self.assertIn(row_text, [row.text for row in rows])
                 return
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
                     raise e
             time.sleep(0.5)
 
-    def test_can_start_a_future_event_request_and_retrieve_it_later(self):
+    def test_can_start_a_list_for_one_user(self):
 
         # Louise has heard about a new locally hosted
         # future betting app.
@@ -94,6 +94,61 @@ class NewVisitorTest(LiveServerTestCase):
         # and now shows both items on her list.
         self.check_for_row_in_list_table('fc-barcelona-vs-girona-fc')
         self.check_for_row_in_list_table('wolverhampton-vs-leicester')
+
+    def test_multiple_users_can_start_tasks_at_different_urls(self):
+        # Louise starts a new task
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element_by_id(
+            'id_new_smarkets_event_address')
+        inputbox.send_keys(
+            'https://smarkets.com/event/958302/'
+            'sport/football/premier-league/2018/09/29/'
+            'man-city-vs-brighton')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('man-city-vs-brighton')
+
+        # She notices that her task has a unique URL
+        louise_list_url = self.browser.current_url
+        self.assertRegex(louise_list_url, '/tasks/.+')
+
+        # Now a new user, Paul, comes along to the site
+
+        # -- We use a new browser session to make sure
+        # -- that no information of Louise's is coming
+        # -- through from cookies etc
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # Peter visits the home page.  There is no sign of
+        # Louise's task.
+
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('man-city-vs-brighton', page_text)
+        self.assertNotIn('fc-barcelona-vs-girona-fc', page_text)
+        self.assertNotIn('wolverhampton-vs-leicester', page_text)
+
+        # Peter starts a new task by entering a new
+        # smarkets event web address
+        inputbox = self.browser.find_element_by_id(
+            'id_new_smarkets_event_address')
+        inputbox.send_keys(
+            'https://smarkets.com/event/958299/sport/'
+            'football/premier-league/2018/09/29/'
+            'arsenal-fc-vs-watford-fc')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('arsenal-fc-vs-watford-fc')
+
+        # Peter gets his own unique URL
+        peter_list_url = self.browser.current_url
+        self.assertRegex(peter_list_url, '/tasks/.+')
+        self.assertNotEqual(peter_list_url, louise_list_url)
+
+        # Again, there is no trace of Louise's list
+        page_text = self.browser.find_elements_by_tag_name('body').text
+        self.assertNotIn('man-city-vs-brighton', page_text)
+        self.assertNotIn('fc-barcelona-vs-girona-fc', page_text)
+        self.assertNotIn('wolverhampton-vs-leicester', page_text)
 
         # The website assumes that there has been
         # an amount bet on this event with the 2-0 refund offer

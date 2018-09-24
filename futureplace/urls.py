@@ -18,4 +18,6 @@ from tasks import views
 
 urlpatterns = [
     url(r'^$', views.home_page, name='home'),
+    url(r'^tasks/the-only-task-in-the-world/$',
+        views.view_task, name='view_task'),
 ]
