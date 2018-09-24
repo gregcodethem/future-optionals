@@ -3,6 +3,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 
+from selenium.common.exceptions import WebDriverException
+
+MAX_WAIT = 10
+
 
 class NewVisitorTest(LiveServerTestCase):
 
@@ -16,6 +20,19 @@ class NewVisitorTest(LiveServerTestCase):
         table = self.browser.find_element_by_id('id_matches_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
+
+    def wait_for_row_in_list_table(self, row_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_matches_table')
+                rows = table.find_elements_by_tag_name('tr')
+                self.assertIn('row_text', [row.text for row in rows])
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+            time.sleep(0.5)
 
     def test_can_start_a_future_event_request_and_retrieve_it_later(self):
 
@@ -48,7 +65,7 @@ class NewVisitorTest(LiveServerTestCase):
         # the name of this market
         # so that the Louise knows it's the right market.
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(4)
+        self.wait_for_row_in_list_table('fc-barcelona-vs-girona-fc')
 
         table = self.browser.find_element_by_id(
             'id_matches_table')
@@ -70,7 +87,8 @@ class NewVisitorTest(LiveServerTestCase):
                            'football/league-cup/2018/09/25/'
                            'wolverhampton-vs-leicester')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(2)
+        self.wait_for_row_in_list_table('wolverhampton-vs-leicester')
+        self.wait_for_row_in_list_table('fc-barcelona-vs-girona-fc')
 
         # The page updates again,
         # and now shows both items on her list.
