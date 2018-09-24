@@ -5,13 +5,15 @@ from django.shortcuts import render
 
 
 def home_page(request):
-    match = Match()
-    smarkets_event_address_text = request.POST.get(
-        'smarkets_event_address_text', '')
-    match.text = convert_smarkets_web_address_to_match_name(
-        smarkets_event_address_text)
-    match.save()
+    if request.method == 'POST':
+        new_smarkets_event_address_text = request.POST[
+            'smarkets_event_address_text']
+        new_match_text = convert_smarkets_web_address_to_match_name(
+            new_smarkets_event_address_text)
+        Match.objects.create(text=new_match_text)
+    else:
+        new_match_text = ''
 
     return render(request, 'home.html',
                   {'smarkets_event_address_text':
-                   match.text})
+                   new_match_text})

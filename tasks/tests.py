@@ -45,6 +45,10 @@ class HomePageTest(TestCase):
                          'smarkets_event_address_text found in html response')
 
 
+    def test_only_saves_items_when_necessary(self):
+        self.client.get('/')
+        self.assertEqual(Match.objects.count(), 0)
+
 class ItemModelTest(TestCase):
 
     def test_saving_and_retrieving_items(self):
