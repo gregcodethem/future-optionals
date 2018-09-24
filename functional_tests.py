@@ -12,6 +12,11 @@ class NewVisitorTest(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(row_text, [row.text for row in rows])
+
     def test_can_start_a_future_event_request_and_retrieve_it_later(self):
 
         # Louise has heard about a new locally hosted
@@ -55,9 +60,14 @@ class NewVisitorTest(unittest.TestCase):
 
         # The website assumes that there has been
         # an amount bet on this event with the 2-0 refund offer
-        self.fail('Finish the test!')
+
         # The website then presents Louise with various options
         # Score becomes 2-0, then 2-2,
+        self.fail('Finish the test!')
+        home_lead_then_comeback_text = self.browser.find_element_by_id(
+            'home_lead_then_comeback_text')
+        # home_lead_then_comeback_button =
+
         # --- Check with client if they want this to be
         # --- how much to bet
         # --- or total winnings/liability etc
