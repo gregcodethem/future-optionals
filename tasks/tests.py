@@ -76,6 +76,11 @@ class MatchModelTest(TestCase):
 
 class TaskViewTest(TestCase):
 
+    def test_uses_task_template(self):
+        response = self.client.get(
+            '/tasks/the-only-task-in-the-world/')
+        self.assertTemplateUsed(response, 'task.html')
+
     def test_displays_all_items(self):
         Match.objects.create(text='match 1')
         Match.objects.create(text='match 2')

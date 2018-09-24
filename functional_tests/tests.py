@@ -45,7 +45,7 @@ class NewVisitorTest(LiveServerTestCase):
         # future optional betting
         self.assertIn('Future Optional Betting', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('Your future optional bets', header_text)
+        self.assertIn('future optional bets', header_text)
 
         # She is invited to enter a smarkets web address
         inputbox = self.browser.find_element_by_id(

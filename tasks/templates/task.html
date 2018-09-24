@@ -3,10 +3,16 @@
 		<title>Future Optional Betting</title>
 	</head>
 	<body>
-		<h1>Start your future optional bets</h1>
+		<h1>Your future optional bets</h1>
 		<form method="POST" action="/">
 			<input name="smarkets_event_address_text" id="id_new_smarkets_event_address" placeholder="Enter a Smarkets event web address" />
 			{% csrf_token %}
 		</form>
+
+		<table id="id_matches_table">
+			{% for match in matches %}
+				<tr><td>{{ match.text }}</td></tr>
+			{% endfor %}
+		</table>
 	</body>
 </html>

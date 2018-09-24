@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 
 def view_task(request):
     matches = Match.objects.all()
-    return render(request, 'home.html',
+    return render(request, 'task.html',
                   {'matches': matches})
 
 
@@ -21,6 +21,4 @@ def home_page(request):
 
         return redirect('/tasks/the-only-task-in-the-world/')
 
-    matches = Match.objects.all()
-
-    return render(request, 'home.html', {'matches': matches})
+    return render(request, 'home.html')
