@@ -10,5 +10,5 @@ def convert_smarkets_web_address_to_match_name(smarkets_event_address_text):
 
 def home_page(request):
     return render(request, 'home.html',
-                  {'match_name':
+                  {'smarkets_event_address_text':
                    request.POST.get('smarkets_event_address_text', '')})
