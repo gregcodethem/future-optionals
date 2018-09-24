@@ -12,6 +12,9 @@ class HomePageTest(TestCase):
     def test_can_save_a_POST_request(self):
         response = self.client.post(
             '/', data={'smarkets_event_address_text': 'A new item'})
+        self.assertEqual(Match.objects.count(), 1)
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.text, 'A new item')
         self.assertIn('A new item', response.content.decode())
         self.assertTemplateUsed(response, 'home.html')
 
@@ -23,6 +26,11 @@ class HomePageTest(TestCase):
         match_name = convert_smarkets_web_address_to_match_name(
             smarkets_event_address_text)
         self.assertEqual(match_name, 'fc-barcelona-vs-girona-fc')
+
+    def test_smarkets_event_web_address_returns_empty_string_from_empty_string_arg(self):
+        match_name_empty_string = convert_smarkets_web_address_to_match_name(
+            '')
+        self.assertEqual(match_name_empty_string, '')
 
     def test_does_not_return_entire_web_address_in_html(self):
         smarkets_event_address_text = ('https://smarkets.com/'
