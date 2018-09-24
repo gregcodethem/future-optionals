@@ -10,8 +10,9 @@
 		</form>
 
 		<table id="id_list_table">
-			<tr><td>
-				{{ match_text }}</td></tr>
+			{% for match in matches %}
+				<tr><td>{{ match.text }}</td></tr>
+			{% endfor %}}
 		</table>
 	</body>
 </html>

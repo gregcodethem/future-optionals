@@ -11,5 +11,9 @@ def home_page(request):
         new_match_text = convert_smarkets_web_address_to_match_name(
             new_smarkets_event_address_text)
         Match.objects.create(text=new_match_text)
+
         return redirect('/')
-    return render(request, 'home.html')
+
+    matches = Match.objects.all()
+
+    return render(request, 'home.html', {'matches': matches})

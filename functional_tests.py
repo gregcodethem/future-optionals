@@ -48,7 +48,7 @@ class NewVisitorTest(unittest.TestCase):
         # the name of this market
         # so that the Louise knows it's the right market.
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
+        time.sleep(2)
 
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')

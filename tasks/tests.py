@@ -10,11 +10,15 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'home.html')
 
     def test_can_save_a_POST_request(self):
-        response = self.client.post(
+        self.client.post(
             '/', data={'smarkets_event_address_text': 'A new item'})
         self.assertEqual(Match.objects.count(), 1)
         new_match = Match.objects.first()
         self.assertEqual(new_match.text, 'A new item')
+
+    def test_redirects_after_POST_request(self):
+        response = self.client.post(
+            '/', data={'smarkets_event_address_text': 'A new item'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')
 
@@ -44,10 +48,19 @@ class HomePageTest(TestCase):
                          response.content.decode(),
                          'smarkets_event_address_text found in html response')
 
-
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Match.objects.count(), 0)
+
+    def test_displays_all_list_items(self):
+        Match.objects.create(text='match 1')
+        Match.objects.create(text='match 2')
+
+        response = self.client.get('/')
+
+        self.assertIn('match 1', response.content.decode())
+        self.assertIn('match 2', response.content.decode())
+
 
 class ItemModelTest(TestCase):
 
