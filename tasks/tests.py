@@ -1,4 +1,4 @@
-from tasks.models import Match
+from tasks.models import Match, Task
 from django.test import TestCase
 from .views import convert_smarkets_web_address_to_match_name
 
@@ -40,16 +40,24 @@ class HomePageTest(TestCase):
         self.assertEqual(Match.objects.count(), 0)
 
 
-class MatchModelTest(TestCase):
+class TaskAndMatchModelTest(TestCase):
 
     def test_saving_and_retrieving_items(self):
+        task = Task()
+        task.save()
+
         first_match = Match()
         first_match.text = 'The first match'
+        first_match.task = task
         first_match.save()
 
         second_match = Match()
         second_match.text = 'The second match'
+        second_match.task = task
         second_match.save()
+
+        saved_task = Task.objects.first()
+        self.assertEqual(saved_task, task)
 
         saved_matches = Match.objects.all()
         self.assertEqual(saved_matches.count(), 2)
@@ -57,7 +65,9 @@ class MatchModelTest(TestCase):
         first_saved_match = saved_matches[0]
         second_saved_match = saved_matches[1]
         self.assertEqual(first_saved_match.text, 'The first match')
+        self.assertEqual(first_saved_match.task, task)
         self.assertEqual(second_saved_match.text, 'The second match')
+        self.assertEqual(second_saved_match.task, task)
 
 
 class TaskViewTest(TestCase):
@@ -68,8 +78,9 @@ class TaskViewTest(TestCase):
         self.assertTemplateUsed(response, 'task.html')
 
     def test_displays_all_items(self):
-        Match.objects.create(text='match 1')
-        Match.objects.create(text='match 2')
+        task = Task.objects.create()
+        Match.objects.create(text='match 1', task=task)
+        Match.objects.create(text='match 2', task=task)
 
         response = self.client.get('/tasks/the-only-task-in-the-world/')
 
@@ -90,4 +101,4 @@ class NewTaskTest(TestCase):
         response = self.client.post(
             '/tasks/new', data={'smarkets_event_address_text': 'A new match'})
         self.assertRedirects(response,
-                         '/tasks/the-only-task-in-the-world/')
+                             '/tasks/the-only-task-in-the-world/')
