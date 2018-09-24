@@ -26,7 +26,8 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn('Your future optional bets', header_text)
 
         # She is invited to enter a smarkets web address
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.browser.find_element_by_id(
+            'id_new_smarkets_event_address')
         self.assertEqual(inputbox.get_attribute('placeholder'),
                          'Enter a Smarkets event web address'
                          )
@@ -48,7 +49,8 @@ class NewVisitorTest(unittest.TestCase):
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(any(row.text == 'fc-barcelona-vs-girona-fc'
                             for row in rows),
-                        "Football match did not appear in table"
+                        f"Football match did not appear in table, "
+                        f"contents were:\n{table.text}"
                         )
 
         # The website assumes that there has been
