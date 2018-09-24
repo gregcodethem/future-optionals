@@ -15,5 +15,5 @@ def home_page(request):
         new_match_text = ''
 
     return render(request, 'home.html',
-                  {'smarkets_event_address_text':
+                  {'match_text':
                    new_match_text})
