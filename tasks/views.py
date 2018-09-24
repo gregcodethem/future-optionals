@@ -10,15 +10,14 @@ def view_task(request):
                   {'matches': matches})
 
 
+def new_task(request):
+    new_smarkets_event_address_text = request.POST[
+        'smarkets_event_address_text']
+    new_match_text = convert_smarkets_web_address_to_match_name(
+        new_smarkets_event_address_text)
+    Match.objects.create(text=new_match_text)
+    return redirect('/tasks/the-only-task-in-the-world/')
+
+
 def home_page(request):
-    if request.method == 'POST':
-
-        new_smarkets_event_address_text = request.POST[
-            'smarkets_event_address_text']
-        new_match_text = convert_smarkets_web_address_to_match_name(
-            new_smarkets_event_address_text)
-        Match.objects.create(text=new_match_text)
-
-        return redirect('/tasks/the-only-task-in-the-world/')
-
     return render(request, 'home.html')

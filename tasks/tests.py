@@ -9,20 +9,6 @@ class HomePageTest(TestCase):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
 
-    def test_can_save_a_POST_request(self):
-        self.client.post(
-            '/', data={'smarkets_event_address_text': 'A new item'})
-        self.assertEqual(Match.objects.count(), 1)
-        new_match = Match.objects.first()
-        self.assertEqual(new_match.text, 'A new item')
-
-    def test_redirects_after_POST_request(self):
-        response = self.client.post(
-            '/', data={'smarkets_event_address_text': 'A new item'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'],
-                         '/tasks/the-only-task-in-the-world/')
-
     def test_smarkets_event_web_address_converted_to_match_name(self):
         smarkets_event_address_text = ('https://smarkets.com/'
                                        'event/956523/sport/football/'
@@ -89,3 +75,19 @@ class TaskViewTest(TestCase):
 
         self.assertContains(response, 'match 1')
         self.assertContains(response, 'match 2')
+
+
+class NewTaskTest(TestCase):
+
+    def test_can_save_a_POST_request(self):
+        self.client.post(
+            '/tasks/new', data={'smarkets_event_address_text': 'A new match'})
+        self.assertEqual(Match.objects.count(), 1)
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.text, 'A new match')
+
+    def test_redirects_after_POST_request(self):
+        response = self.client.post(
+            '/tasks/new', data={'smarkets_event_address_text': 'A new match'})
+        self.assertRedirects(response,
+                         '/tasks/the-only-task-in-the-world/')
