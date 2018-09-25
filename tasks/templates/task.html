@@ -1,13 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header_text %}Your future optional bets{% endblock %}
+
+{% block form_action %}/tasks/{{ task.id }}/add_match{% endblock %}
+
+{% block table %}
+  <table id="id_matches_table">
+    {% for match in task.match_set.all %}
+      <tr><td>{{ match.text }}</td><td>{{ match.date }}</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
+
 <html>
 	<head>
 		<title>Future Optional Betting</title>
 	</head>
-	<body>
-		<h1>Your future optional bets</h1>
-		<form method="POST" action="/tasks/{{ task.id }}/add_match">
-			<input name="smarkets_event_address_text" id="id_new_smarkets_event_address" placeholder="Enter a Smarkets event web address" />
-			{% csrf_token %}
-		</form>
 
 		<table id="id_matches_table">
 			{% for match in task.match_set.all %}
