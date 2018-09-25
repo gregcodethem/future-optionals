@@ -19,6 +19,7 @@ from tasks import views
 urlpatterns = [
     url(r'^$', views.home_page, name='home'),
     url(r'^tasks/new$', views.new_task, name='new_task'),
-    url(r'^tasks/the-only-task-in-the-world/$',
+    url(r'^tasks/(\d+)/$',
         views.view_task, name='view_task'),
+    url(r'^tasks/(\d+)/add_match$', views.add_match, name='add_match'),
 ]

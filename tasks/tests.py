@@ -72,20 +72,33 @@ class TaskAndMatchModelTest(TestCase):
 
 class TaskViewTest(TestCase):
 
+    def test_passes_correct_task_to_template(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+        response = self.client.get(f'/tasks/{correct_task.id}/')
+        self.assertEqual(response.context['task'], correct_task)
+
     def test_uses_task_template(self):
+        task = Task.objects.create()
         response = self.client.get(
-            '/tasks/the-only-task-in-the-world/')
+            f'/tasks/{task.id}/')
         self.assertTemplateUsed(response, 'task.html')
 
-    def test_displays_all_items(self):
-        task = Task.objects.create()
-        Match.objects.create(text='match 1', task=task)
-        Match.objects.create(text='match 2', task=task)
+    def test_displays_only_matches_for_that_task(self):
+        correct_task = Task.objects.create()
+        Match.objects.create(text='match 1', task=correct_task)
+        Match.objects.create(text='match 2', task=correct_task)
 
-        response = self.client.get('/tasks/the-only-task-in-the-world/')
+        other_task = Task.objects.create()
+        Match.objects.create(text='other task match 1', task=other_task)
+        Match.objects.create(text='other task match 2', task=other_task)
+
+        response = self.client.get(f'/tasks/{correct_task.id}/')
 
         self.assertContains(response, 'match 1')
         self.assertContains(response, 'match 2')
+        self.assertNotContains(response, 'other task match 1')
+        self.assertNotContains(response, 'other task match 2')
 
 
 class NewTaskTest(TestCase):
@@ -100,5 +113,34 @@ class NewTaskTest(TestCase):
     def test_redirects_after_POST_request(self):
         response = self.client.post(
             '/tasks/new', data={'smarkets_event_address_text': 'A new match'})
+        new_task = Task.objects.first()
         self.assertRedirects(response,
-                             '/tasks/the-only-task-in-the-world/')
+                             f'/tasks/{new_task.id}/')
+
+
+class NewMatchTest(TestCase):
+
+    def test_can_save_a_POST_request_to_an_existing_task(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+
+        self.client.post(
+            f'/tasks/{correct_task.id}/add_match',
+            data={'smarkets_event_address_text': 'A new match for an existing task'}
+        )
+
+        self.assertEqual(Match.objects.count(), 1)
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.text, 'A new match for an existing task')
+        self.assertEqual(new_match.task, correct_task)
+
+    def test_redirects_to_task_view(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+
+        response = self.client.post(
+            f'/tasks/{correct_task.id}/add_match',
+            data={'smarkets_event_address_text': 'A new match for an existing task'}
+        )
+
+        self.assertRedirects(response, f'/tasks/{correct_task.id}/')

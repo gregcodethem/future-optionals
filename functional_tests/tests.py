@@ -145,7 +145,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotEqual(peter_list_url, louise_list_url)
 
         # Again, there is no trace of Louise's list
-        page_text = self.browser.find_elements_by_tag_name('body').text
+        page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('man-city-vs-brighton', page_text)
         self.assertNotIn('fc-barcelona-vs-girona-fc', page_text)
         self.assertNotIn('wolverhampton-vs-leicester', page_text)
