@@ -1,7 +1,7 @@
 from tasks.models import Match, Task
 from django.test import TestCase
-from .utils import convert_smarkets_web_address_to_match_name
-from .utils import convert_smarkets_web_address_to_datetime_date_format
+from ..utils import convert_smarkets_web_address_to_match_name
+from ..utils import convert_smarkets_web_address_to_datetime_date_format
 from datetime import date
 
 SMARKETS_EVENT_ADDRESS_BASE = ('https://smarkets.com/event/956523/'
