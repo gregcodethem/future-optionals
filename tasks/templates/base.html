@@ -19,6 +19,11 @@
 						<form method="POST" action="{% block form_action %}{%endblock%}">
 							<input name="smarkets_event_address_text" id="id_new_smarkets_event_address" placeholder="Enter a Smarkets event web address" />
 							{% csrf_token %}
+							{% if error %}
+								<div class="form-group has-error">
+									<span class="help-block">{{ error }}</span>
+								</div>
+							{% endif %}
 						</form>
 					</div>
 				</div>

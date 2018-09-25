@@ -32,9 +32,16 @@ class TaskAndMatchModelTest(TestCase):
         self.assertEqual(second_saved_match.text, 'The second match')
         self.assertEqual(second_saved_match.task, task)
 
-    def test_cannot_save_empty_task_matches(self):
+    def test_cannot_save_empty_text_task_matches(self):
         task = Task.objects.create()
         match = Match(task=task, text='')
+        with self.assertRaises(ValidationError):
+            match.save()
+            match.full_clean()
+
+    def test_cannot_save_empty_date_task_matches(self):
+        task = Task.objects.create()
+        match = Match(task=task, date='')
         with self.assertRaises(ValidationError):
             match.save()
             match.full_clean()

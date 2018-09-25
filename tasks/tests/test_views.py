@@ -1,5 +1,7 @@
 from tasks.models import Match, Task
+from django.utils.html import escape
 from django.test import TestCase
+from django.db import transaction
 from ..utils import convert_smarkets_web_address_to_match_name
 from ..utils import convert_smarkets_web_address_to_datetime_date_format
 from datetime import date
@@ -33,7 +35,7 @@ class HomePageTest(TestCase):
     def test_smarkets_address_date_formatter_returns_empty_string_from_empty_string_arg(self):
         match_date = convert_smarkets_web_address_to_datetime_date_format(
             '')
-        self.assertEqual('', '')
+        self.assertEqual(match_date, '')
 
     def test_smarkets_event_web_address_returns_date_format(self):
         smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
@@ -54,36 +56,6 @@ class HomePageTest(TestCase):
     def test_only_saves_matches_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Match.objects.count(), 0)
-
-
-class TaskAndMatchModelTest(TestCase):
-
-    def test_saving_and_retrieving_items(self):
-        task = Task()
-        task.save()
-
-        first_match = Match()
-        first_match.text = 'The first match'
-        first_match.task = task
-        first_match.save()
-
-        second_match = Match()
-        second_match.text = 'The second match'
-        second_match.task = task
-        second_match.save()
-
-        saved_task = Task.objects.first()
-        self.assertEqual(saved_task, task)
-
-        saved_matches = Match.objects.all()
-        self.assertEqual(saved_matches.count(), 2)
-
-        first_saved_match = saved_matches[0]
-        second_saved_match = saved_matches[1]
-        self.assertEqual(first_saved_match.text, 'The first match')
-        self.assertEqual(first_saved_match.task, task)
-        self.assertEqual(second_saved_match.text, 'The second match')
-        self.assertEqual(second_saved_match.task, task)
 
 
 class TaskViewTest(TestCase):
@@ -123,6 +95,14 @@ class TaskViewTest(TestCase):
         response = self.client.get(f'/tasks/{task.id}/')
         self.assertContains(response, 'Sept. 23, 2018')
 
+    def test_invalid_task_matches_arent_saved(self):
+        with transaction.atomic():
+            self.client.post(
+                '/tasks/new',
+                data={'smarkets_event_address_text': ''})
+        self.assertEqual(Task.objects.count(), 0)
+        self.assertEqual(Match.objects.count(), 0)
+
 
 class NewTaskTest(TestCase):
 
@@ -150,6 +130,17 @@ class NewTaskTest(TestCase):
         new_task = Task.objects.first()
         self.assertRedirects(response,
                              f'/tasks/{new_task.id}/')
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post(
+            '/tasks/new',
+            data={'smarkets_event_address_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+
+        expected_error = escape(
+            "You can't have an empty Smarkets event address")
+        self.assertContains(response, expected_error)
 
 
 class NewMatchTest(TestCase):
