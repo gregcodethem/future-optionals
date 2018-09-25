@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from tasks.models import Match, Task
 from django.test import TestCase
 
@@ -30,3 +31,10 @@ class TaskAndMatchModelTest(TestCase):
         self.assertEqual(first_saved_match.task, task)
         self.assertEqual(second_saved_match.text, 'The second match')
         self.assertEqual(second_saved_match.task, task)
+
+    def test_cannot_save_empty_task_matches(self):
+        task = Task.objects.create()
+        match = Match(task=task, text='')
+        with self.assertRaises(ValidationError):
+            match.save()
+            match.full_clean()
