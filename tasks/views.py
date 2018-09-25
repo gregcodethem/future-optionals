@@ -1,5 +1,6 @@
 
 from tasks.templatetags.tasks_extras import convert_smarkets_web_address_to_match_name
+from tasks.templatetags.tasks_extras import convert_smarkets_web_address_to_datetime_date_format
 from tasks.models import Match, Task
 from django.shortcuts import redirect, render
 
@@ -10,7 +11,10 @@ def add_match(request, task_id):
         'smarkets_event_address_text']
     new_match_text = convert_smarkets_web_address_to_match_name(
         new_smarkets_event_address_text)
-    Match.objects.create(text=new_match_text, task=task)
+    new_match_date = convert_smarkets_web_address_to_datetime_date_format(
+        new_smarkets_event_address_text)
+    Match.objects.create(text=new_match_text, date=new_match_date,
+                         task=task)
     return redirect(f'/tasks/{task.id}/')
 
 
@@ -26,7 +30,10 @@ def new_task(request):
         'smarkets_event_address_text']
     new_match_text = convert_smarkets_web_address_to_match_name(
         new_smarkets_event_address_text)
-    Match.objects.create(text=new_match_text, task=task)
+    new_match_date = convert_smarkets_web_address_to_datetime_date_format(
+        new_smarkets_event_address_text)
+    Match.objects.create(text=new_match_text, date=new_match_date,
+                         task=task)
     return redirect(f'/tasks/{task.id}/')
 
 

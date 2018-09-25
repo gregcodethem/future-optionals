@@ -1,9 +1,20 @@
 from django import template
+from datetime import date
 
 register = template.Library()
 
 
-def convert_smarkets_web_address_to_match_name(smarkets_event_address_text):
+def convert_smarkets_web_address_to_datetime_date_format(
+        smarkets_event_address_text):
+    event_information_list = smarkets_event_address_text.split('/')
+    day = int(event_information_list[-2])
+    month = int(event_information_list[-3])
+    year = int(event_information_list[-4])
+    return date(year, month, day)
+
+
+def convert_smarkets_web_address_to_match_name(
+        smarkets_event_address_text):
     event_information_list = smarkets_event_address_text.split('/')
     match_name = event_information_list[-1]
     return match_name

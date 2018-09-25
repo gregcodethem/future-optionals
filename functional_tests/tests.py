@@ -150,6 +150,10 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotIn('fc-barcelona-vs-girona-fc', page_text)
         self.assertNotIn('wolverhampton-vs-leicester', page_text)
 
+
+
+
+
         # The website assumes that there has been
         # an amount bet on this event with the 2-0 refund offer
 
@@ -159,6 +163,34 @@ class NewVisitorTest(LiveServerTestCase):
         home_lead_then_comeback_text = self.browser.find_element_by_id(
             'home_lead_then_comeback_text')
         # home_lead_then_comeback_button =
+
+
+    def test_website_displays_other_match_information(self):
+
+        # The user goes to the website
+        self.browser.get(self.live_server_url)
+
+        
+        # And enters in a smarkets event address
+        inputbox = self.browser.find_element_by_id(
+            'id_new_smarkets_event_address')
+        text_to_input = ('https://smarkets.com/event/956523/sport/football/'
+                         'spain-la-liga/2018/09/23/fc-barcelona-vs-girona-fc')
+        inputbox.send_keys(text_to_input)
+
+        # When she hits enter, the page updates and now the page lists:
+        # the name of this market
+        # so that the Louise knows it's the right market.
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('fc-barcelona-vs-girona-fc')
+
+        # She also sees the date of the match
+        # in a separate column in the list table
+        table = self.browser.find_element_by_id(
+            'id_matches_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('2018/09/23', [row.text for row in rows])
+
 
         # --- Check with client if they want this to be
         # --- how much to bet

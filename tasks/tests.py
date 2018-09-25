@@ -1,6 +1,14 @@
 from tasks.models import Match, Task
 from django.test import TestCase
 from .views import convert_smarkets_web_address_to_match_name
+from tasks.templatetags.tasks_extras import convert_smarkets_web_address_to_datetime_date_format
+from datetime import date
+
+SMARKETS_EVENT_ADDRESS_BASE = ('https://smarkets.com/event/956523/'
+                               'sport/football/spain-la-liga/2018/09/23/')
+SMARKETS_EVENT_ADDRESS_SAMPLE = ('https://smarkets.com/event/956523/'
+                                 'sport/football/spain-la-liga/2018/09/23/'
+                                 'fc-barcelona-vs-girona-fc')
 
 
 class HomePageTest(TestCase):
@@ -10,10 +18,9 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'home.html')
 
     def test_smarkets_event_web_address_converted_to_match_name(self):
-        smarkets_event_address_text = ('https://smarkets.com/'
-                                       'event/956523/sport/football/'
-                                       'spain-la-liga/2018/09/23/'
-                                       'fc-barcelona-vs-girona-fc')
+
+        smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
+
         match_name = convert_smarkets_web_address_to_match_name(
             smarkets_event_address_text)
         self.assertEqual(match_name, 'fc-barcelona-vs-girona-fc')
@@ -23,11 +30,15 @@ class HomePageTest(TestCase):
             '')
         self.assertEqual(match_name_empty_string, '')
 
+    def test_smarkets_event_web_address_returns_date_format(self):
+        smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
+
+        match_date = convert_smarkets_web_address_to_datetime_date_format(
+            smarkets_event_address_text)
+        self.assertEqual(date(2018, 9, 23), match_date)
+
     def test_does_not_return_entire_web_address_in_html(self):
-        smarkets_event_address_text = ('https://smarkets.com/'
-                                       'event/956523/sport/football/'
-                                       'spain-la-liga/2018/09/23/'
-                                       'fc-barcelona-vs-girona-fc')
+        smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
         response = self.client.post(
             '/', data={'smarkets_event_address_text':
                        smarkets_event_address_text})
@@ -100,19 +111,37 @@ class TaskViewTest(TestCase):
         self.assertNotContains(response, 'other task match 1')
         self.assertNotContains(response, 'other task match 2')
 
+    def test_displays_date_of_match(self):
+        task = Task.objects.create()
+        Match.objects.create(text='match 1', date="2018-09-23",
+                             task=task)
+        response = self.client.get(f'/tasks/{task.id}/')
+        self.assertContains(response, '2018/09/23')
+
 
 class NewTaskTest(TestCase):
 
+    def test_can_save_date_of_match(self):
+        self.client.post('/tasks/new',
+                         data={'smarkets_event_address_text':
+                               SMARKETS_EVENT_ADDRESS_SAMPLE})
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.date, date(2018, 9, 23))
+
     def test_can_save_a_POST_request(self):
         self.client.post(
-            '/tasks/new', data={'smarkets_event_address_text': 'A new match'})
+            '/tasks/new',
+            data={'smarkets_event_address_text':
+                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match'})
         self.assertEqual(Match.objects.count(), 1)
         new_match = Match.objects.first()
         self.assertEqual(new_match.text, 'A new match')
 
     def test_redirects_after_POST_request(self):
         response = self.client.post(
-            '/tasks/new', data={'smarkets_event_address_text': 'A new match'})
+            '/tasks/new',
+            data={'smarkets_event_address_text':
+                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match'})
         new_task = Task.objects.first()
         self.assertRedirects(response,
                              f'/tasks/{new_task.id}/')
@@ -126,7 +155,8 @@ class NewMatchTest(TestCase):
 
         self.client.post(
             f'/tasks/{correct_task.id}/add_match',
-            data={'smarkets_event_address_text': 'A new match for an existing task'}
+            data={'smarkets_event_address_text':
+                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
         )
 
         self.assertEqual(Match.objects.count(), 1)
@@ -140,7 +170,8 @@ class NewMatchTest(TestCase):
 
         response = self.client.post(
             f'/tasks/{correct_task.id}/add_match',
-            data={'smarkets_event_address_text': 'A new match for an existing task'}
+            data={'smarkets_event_address_text':
+                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
         )
 
         self.assertRedirects(response, f'/tasks/{correct_task.id}/')
