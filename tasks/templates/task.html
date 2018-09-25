@@ -11,7 +11,9 @@
 
 		<table id="id_matches_table">
 			{% for match in task.match_set.all %}
-				<tr><td>{{ match.text }}</td></tr>
+				<tr>
+					<td>{{ match.text }}</td><td> {{ match.date }}</td>
+				</tr>
 			{% endfor %}
 		</table>
 	</body>

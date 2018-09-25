@@ -21,6 +21,14 @@ class NewVisitorTest(LiveServerTestCase):
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
+    def check_for_cell_in_list_table(self, cell_text):
+        table = self.browser.find_element_by_id('id_matches_table')
+        rows = table.find_elements_by_tag_name('tr')
+        cells = []
+        for row in rows:
+            cells.extend(row.find_elements_by_tag_name('td'))
+        self.assertIn(cell_text, [cell.text for cell in cells])
+
     def wait_for_row_in_list_table(self, row_text):
         start_time = time.time()
         while True:
@@ -28,6 +36,22 @@ class NewVisitorTest(LiveServerTestCase):
                 table = self.browser.find_element_by_id('id_matches_table')
                 rows = table.find_elements_by_tag_name('tr')
                 self.assertIn(row_text, [row.text for row in rows])
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+            time.sleep(0.5)
+
+    def wait_for_cell_in_list_table(self, cell_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_matches_table')
+                rows = table.find_elements_by_tag_name('tr')
+                cells = []
+                for row in rows:
+                    cells.extend(row.find_elements_by_tag_name('td'))
+                self.assertIn(cell_text, [cell.text for cell in cells])
                 return
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
@@ -65,13 +89,16 @@ class NewVisitorTest(LiveServerTestCase):
         # the name of this market
         # so that the Louise knows it's the right market.
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('fc-barcelona-vs-girona-fc')
+        self.wait_for_cell_in_list_table('fc-barcelona-vs-girona-fc')
 
         table = self.browser.find_element_by_id(
             'id_matches_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(any(row.text == 'fc-barcelona-vs-girona-fc'
-                            for row in rows),
+        cells = []
+        for row in rows:
+            cells.extend(row.find_elements_by_tag_name('td'))
+        self.assertTrue(any(cell.text == 'fc-barcelona-vs-girona-fc'
+                            for cell in cells),
                         f"Football match did not appear in table, "
                         f"contents were:\n{table.text}"
                         )
@@ -87,13 +114,13 @@ class NewVisitorTest(LiveServerTestCase):
                            'football/league-cup/2018/09/25/'
                            'wolverhampton-vs-leicester')
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('wolverhampton-vs-leicester')
-        self.wait_for_row_in_list_table('fc-barcelona-vs-girona-fc')
+        self.wait_for_cell_in_list_table('wolverhampton-vs-leicester')
+        self.wait_for_cell_in_list_table('fc-barcelona-vs-girona-fc')
 
         # The page updates again,
         # and now shows both items on her list.
-        self.check_for_row_in_list_table('fc-barcelona-vs-girona-fc')
-        self.check_for_row_in_list_table('wolverhampton-vs-leicester')
+        self.check_for_cell_in_list_table('fc-barcelona-vs-girona-fc')
+        self.check_for_cell_in_list_table('wolverhampton-vs-leicester')
 
     def test_multiple_users_can_start_tasks_at_different_urls(self):
         # Louise starts a new task
@@ -105,7 +132,7 @@ class NewVisitorTest(LiveServerTestCase):
             'sport/football/premier-league/2018/09/29/'
             'man-city-vs-brighton')
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('man-city-vs-brighton')
+        self.wait_for_cell_in_list_table('man-city-vs-brighton')
 
         # She notices that her task has a unique URL
         louise_list_url = self.browser.current_url
@@ -137,7 +164,7 @@ class NewVisitorTest(LiveServerTestCase):
             'football/premier-league/2018/09/29/'
             'arsenal-fc-vs-watford-fc')
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('arsenal-fc-vs-watford-fc')
+        self.wait_for_cell_in_list_table('arsenal-fc-vs-watford-fc')
 
         # Peter gets his own unique URL
         peter_list_url = self.browser.current_url
@@ -150,10 +177,6 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotIn('fc-barcelona-vs-girona-fc', page_text)
         self.assertNotIn('wolverhampton-vs-leicester', page_text)
 
-
-
-
-
         # The website assumes that there has been
         # an amount bet on this event with the 2-0 refund offer
 
@@ -164,13 +187,11 @@ class NewVisitorTest(LiveServerTestCase):
             'home_lead_then_comeback_text')
         # home_lead_then_comeback_button =
 
-
     def test_website_displays_other_match_information(self):
 
         # The user goes to the website
         self.browser.get(self.live_server_url)
 
-        
         # And enters in a smarkets event address
         inputbox = self.browser.find_element_by_id(
             'id_new_smarkets_event_address')
@@ -182,15 +203,17 @@ class NewVisitorTest(LiveServerTestCase):
         # the name of this market
         # so that the Louise knows it's the right market.
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('fc-barcelona-vs-girona-fc')
+        self.wait_for_cell_in_list_table('fc-barcelona-vs-girona-fc')
 
         # She also sees the date of the match
         # in a separate column in the list table
         table = self.browser.find_element_by_id(
             'id_matches_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertIn('2018/09/23', [row.text for row in rows])
-
+        cells = []
+        for row in rows:
+            cells.extend(row.find_elements_by_tag_name('td'))
+        self.assertIn('Sept. 23, 2018', [cell.text for cell in cells])
 
         # --- Check with client if they want this to be
         # --- how much to bet

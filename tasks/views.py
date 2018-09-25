@@ -1,6 +1,6 @@
 
-from tasks.templatetags.tasks_extras import convert_smarkets_web_address_to_match_name
-from tasks.templatetags.tasks_extras import convert_smarkets_web_address_to_datetime_date_format
+from .utils import convert_smarkets_web_address_to_match_name
+from .utils import convert_smarkets_web_address_to_datetime_date_format
 from tasks.models import Match, Task
 from django.shortcuts import redirect, render
 

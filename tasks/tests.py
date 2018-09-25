@@ -1,7 +1,7 @@
 from tasks.models import Match, Task
 from django.test import TestCase
-from .views import convert_smarkets_web_address_to_match_name
-from tasks.templatetags.tasks_extras import convert_smarkets_web_address_to_datetime_date_format
+from .utils import convert_smarkets_web_address_to_match_name
+from .utils import convert_smarkets_web_address_to_datetime_date_format
 from datetime import date
 
 SMARKETS_EVENT_ADDRESS_BASE = ('https://smarkets.com/event/956523/'
@@ -116,7 +116,7 @@ class TaskViewTest(TestCase):
         Match.objects.create(text='match 1', date="2018-09-23",
                              task=task)
         response = self.client.get(f'/tasks/{task.id}/')
-        self.assertContains(response, '2018/09/23')
+        self.assertContains(response, 'Sept. 23, 2018')
 
 
 class NewTaskTest(TestCase):
