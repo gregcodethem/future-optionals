@@ -30,6 +30,11 @@ class HomePageTest(TestCase):
             '')
         self.assertEqual(match_name_empty_string, '')
 
+    def test_smarkets_address_date_formatter_returns_empty_string_from_empty_string_arg(self):
+        match_date = convert_smarkets_web_address_to_datetime_date_format(
+            '')
+        self.assertEqual('', '')
+
     def test_smarkets_event_web_address_returns_date_format(self):
         smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
 
