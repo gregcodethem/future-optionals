@@ -5,25 +5,9 @@
 {% block form_action %}/tasks/{{ task.id }}/add_match{% endblock %}
 
 {% block table %}
-  <table id="id_matches_table">
+  <table id="id_matches_table" class="table">
     {% for match in task.match_set.all %}
       <tr><td>{{ match.text }}</td><td>{{ match.date }}</td></tr>
     {% endfor %}
   </table>
 {% endblock %}
-
-
-<html>
-	<head>
-		<title>Future Optional Betting</title>
-	</head>
-
-		<table id="id_matches_table">
-			{% for match in task.match_set.all %}
-				<tr>
-					<td>{{ match.text }}</td><td> {{ match.date }}</td>
-				</tr>
-			{% endfor %}
-		</table>
-	</body>
-</html>
