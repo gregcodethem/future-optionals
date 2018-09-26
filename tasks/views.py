@@ -24,7 +24,7 @@ def view_task(request, task_id):
                                          task=task)
             match.full_clean()
             match.save()
-            return redirect(f'/tasks/{task.id}/')
+            return redirect(task)
         except ValidationError:
             error = "You can't have an empty Smarkets event address"
 
@@ -48,7 +48,7 @@ def new_task(request):
     except ValidationError:
         error = "You can't have an empty Smarkets event address"
         return render(request, 'home.html', {"error": error})
-    return redirect(f'/tasks/{task.id}/')
+    return redirect(task)
 
 
 def home_page(request):

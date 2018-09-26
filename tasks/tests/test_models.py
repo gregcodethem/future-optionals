@@ -45,3 +45,8 @@ class TaskAndMatchModelTest(TestCase):
         with self.assertRaises(ValidationError):
             match.save()
             match.full_clean()
+
+    def test_get_absolute_url(self):
+        task = Task.objects.create()
+        self.assertEqual(task.get_absolute_url(),
+                         f'/tasks/{task.id}/')
