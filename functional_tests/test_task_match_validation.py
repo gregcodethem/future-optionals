@@ -1,8 +1,8 @@
 from selenium.webdriver.common.keys import Keys
 from .base import FunctionalTest
 
-class ItemValidationTest(FunctionalTest):
 
+class ItemValidationTest(FunctionalTest):
 
     def test_cannot_add_empty_task_matches(self):
         # Edith goes to the home page and accidentally tries to submit
@@ -39,7 +39,9 @@ class ItemValidationTest(FunctionalTest):
         ))
 
         # And she can correct it by filling some text in
-        self.browser.find_element_by_id('').send_keys(
+        self.browser.find_element_by_id(
+            'id_new_smarkets_event_address'
+        ).send_keys(
             'https://smarkets.com/event/957182/sport/'
             'football/league-cup/2018/09/25/'
             'wolverhampton-vs-leicester')
