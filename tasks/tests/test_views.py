@@ -7,7 +7,7 @@ from ..utils import convert_smarkets_web_address_to_match_name
 from ..utils import convert_smarkets_web_address_to_datetime_date_format
 from datetime import date
 from unittest import skip
-from tasks.forms import MatchForm
+from tasks.forms import MatchForm, EMPTY_INPUT_ERROR
 
 SMARKETS_EVENT_ADDRESS_BASE = ('https://smarkets.com/event/956523/'
                                'sport/football/spain-la-liga/2018/09/23/')
@@ -140,7 +140,7 @@ class TaskViewTest(TestCase):
 
     @skip
     def test_validation_errors_end_up_on_tasks_page(self):
-        
+
         try:
             with transaction.atomic():
                 task = Task.objects.create()
@@ -151,12 +151,44 @@ class TaskViewTest(TestCase):
         except:
             pass
 
-        #with transaction.atomic():
+        # with transaction.atomic():
             #self.assertEqual(response.status_code, 200)
             #self.assertTemplateUsed(response, 'task.html')
-            #expected_error = escape(
-                #"You can't have an empty Smarkets event address")
+            # expected_error = escape(
+            #"You can't have an empty Smarkets event address")
             #self.assertContains(response, expected_error)
+
+    def post_invalid_input(self):
+        task = Task.objects.create()
+        return self.client.post(
+            f'/tasks/{task.id}/',
+            data={'text': ''}
+        )
+
+    def test_for_invalid_input_nothing_saved_to_db(self):
+        self.post_invalid_input()
+        self.assertEqual(Match.objects.count(), 0)
+
+    def test_for_invalid_input_renders_task_template(self):
+        response = self.post_invalid_input()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'task.html')
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.post_invalid_input()
+        self.assertIsInstance(response.context['form'], MatchForm)
+
+    def test_for_invalid_input_shows_error_on_page(self):
+        response = self.post_invalid_input()
+        self.assertContains(response,
+                            escape(EMPTY_INPUT_ERROR))
+
+    def test_displays_match_form(self):
+        task = Task.objects.create()
+        response = self.client.get(f'/tasks/{task.id}/')
+        self.assertIsInstance(response.context['form'],
+                              MatchForm)
+        self.assertContains(response, 'name="text"')
 
 
 class NewTaskTest(TestCase):
@@ -168,16 +200,24 @@ class NewTaskTest(TestCase):
         new_match = Match.objects.first()
         self.assertEqual(new_match.date, date(2018, 9, 23))
 
-    def test_validation_errors_are_sent_back_to_home_page_template(self):
+    def test_for_invalid_input_renders_home_page_template(self):
         response = self.client.post(
             '/tasks/new',
             data={'text': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'home.html')
 
-        expected_error = escape(
-            "You can't have an empty Smarkets event address")
-        self.assertContains(response, expected_error)
+    def test_validation_errors_are_shown_on_home_page(self):
+        response = self.client.post(
+            '/tasks/new',
+            data={'text': ''})
+        self.assertContains(response, escape(EMPTY_INPUT_ERROR))
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.client.post(
+            '/tasks/new',
+            data={'text': ''})
+        self.assertIsInstance(response.context['form'], MatchForm)
 
     def test_can_save_a_POST_request(self):
         self.client.post(
