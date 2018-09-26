@@ -20,5 +20,4 @@ urlpatterns = [
     url(r'^new$', views.new_task, name='new_task'),
     url(r'^(\d+)/$',
         views.view_task, name='view_task'),
-    url(r'^(\d+)/add_match$', views.add_match, name='add_match'),
 ]

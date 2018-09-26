@@ -103,6 +103,33 @@ class TaskViewTest(TestCase):
         self.assertEqual(Task.objects.count(), 0)
         self.assertEqual(Match.objects.count(), 0)
 
+    def test_can_save_a_POST_request_to_an_existing_task(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+
+        self.client.post(
+            f'/tasks/{correct_task.id}/',
+            data={'smarkets_event_address_text':
+                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
+        )
+
+        self.assertEqual(Match.objects.count(), 1)
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.text, 'A new match for an existing task')
+        self.assertEqual(new_match.task, correct_task)
+
+    def test_POST_redirects_to_task_view(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+
+        response = self.client.post(
+            f'/tasks/{correct_task.id}/',
+            data={'smarkets_event_address_text':
+                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
+        )
+
+        self.assertRedirects(response, f'/tasks/{correct_task.id}/')
+
 
 class NewTaskTest(TestCase):
 
@@ -112,6 +139,17 @@ class NewTaskTest(TestCase):
                                SMARKETS_EVENT_ADDRESS_SAMPLE})
         new_match = Match.objects.first()
         self.assertEqual(new_match.date, date(2018, 9, 23))
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post(
+            '/tasks/new',
+            data={'smarkets_event_address_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+
+        expected_error = escape(
+            "You can't have an empty Smarkets event address")
+        self.assertContains(response, expected_error)
 
     def test_can_save_a_POST_request(self):
         self.client.post(
@@ -130,44 +168,3 @@ class NewTaskTest(TestCase):
         new_task = Task.objects.first()
         self.assertRedirects(response,
                              f'/tasks/{new_task.id}/')
-
-    def test_validation_errors_are_sent_back_to_home_page_template(self):
-        response = self.client.post(
-            '/tasks/new',
-            data={'smarkets_event_address_text': ''})
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'home.html')
-
-        expected_error = escape(
-            "You can't have an empty Smarkets event address")
-        self.assertContains(response, expected_error)
-
-
-class NewMatchTest(TestCase):
-
-    def test_can_save_a_POST_request_to_an_existing_task(self):
-        other_task = Task.objects.create()
-        correct_task = Task.objects.create()
-
-        self.client.post(
-            f'/tasks/{correct_task.id}/add_match',
-            data={'smarkets_event_address_text':
-                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
-        )
-
-        self.assertEqual(Match.objects.count(), 1)
-        new_match = Match.objects.first()
-        self.assertEqual(new_match.text, 'A new match for an existing task')
-        self.assertEqual(new_match.task, correct_task)
-
-    def test_redirects_to_task_view(self):
-        other_task = Task.objects.create()
-        correct_task = Task.objects.create()
-
-        response = self.client.post(
-            f'/tasks/{correct_task.id}/add_match',
-            data={'smarkets_event_address_text':
-                  SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
-        )
-
-        self.assertRedirects(response, f'/tasks/{correct_task.id}/')
