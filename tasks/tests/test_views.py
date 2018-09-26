@@ -55,7 +55,7 @@ class HomePageTest(TestCase):
     def test_does_not_return_entire_web_address_in_html(self):
         smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
         response = self.client.post(
-            '/', data={'smarkets_event_address_text':
+            '/', data={'text':
                        smarkets_event_address_text})
         self.assertNotIn(smarkets_event_address_text,
                          response.content.decode(),
@@ -107,7 +107,7 @@ class TaskViewTest(TestCase):
         with transaction.atomic():
             self.client.post(
                 '/tasks/new',
-                data={'smarkets_event_address_text': ''})
+                data={'text': ''})
         self.assertEqual(Task.objects.count(), 0)
         self.assertEqual(Match.objects.count(), 0)
 
@@ -117,7 +117,7 @@ class TaskViewTest(TestCase):
 
         self.client.post(
             f'/tasks/{correct_task.id}/',
-            data={'smarkets_event_address_text':
+            data={'text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
         )
 
@@ -132,7 +132,7 @@ class TaskViewTest(TestCase):
 
         response = self.client.post(
             f'/tasks/{correct_task.id}/',
-            data={'smarkets_event_address_text':
+            data={'text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
         )
 
@@ -146,7 +146,7 @@ class TaskViewTest(TestCase):
                 task = Task.objects.create()
                 self.client.post(
                     f'/tasks/{task.id}/',
-                    data={'smarkets_event_address_text': ''}
+                    data={'text': ''}
                 )
         except:
             pass
@@ -163,7 +163,7 @@ class NewTaskTest(TestCase):
 
     def test_can_save_date_of_match(self):
         self.client.post('/tasks/new',
-                         data={'smarkets_event_address_text':
+                         data={'text':
                                SMARKETS_EVENT_ADDRESS_SAMPLE})
         new_match = Match.objects.first()
         self.assertEqual(new_match.date, date(2018, 9, 23))
@@ -171,7 +171,7 @@ class NewTaskTest(TestCase):
     def test_validation_errors_are_sent_back_to_home_page_template(self):
         response = self.client.post(
             '/tasks/new',
-            data={'smarkets_event_address_text': ''})
+            data={'text': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'home.html')
 
@@ -182,7 +182,7 @@ class NewTaskTest(TestCase):
     def test_can_save_a_POST_request(self):
         self.client.post(
             '/tasks/new',
-            data={'smarkets_event_address_text':
+            data={'text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match'})
         self.assertEqual(Match.objects.count(), 1)
         new_match = Match.objects.first()
@@ -191,7 +191,7 @@ class NewTaskTest(TestCase):
     def test_redirects_after_POST_request(self):
         response = self.client.post(
             '/tasks/new',
-            data={'smarkets_event_address_text':
+            data={'text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match'})
         new_task = Task.objects.first()
         self.assertRedirects(response,

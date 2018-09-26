@@ -12,9 +12,9 @@ def view_task(request, task_id):
     error = None
 
     if request.method == 'POST':
-        
+
         new_smarkets_event_address_text = request.POST[
-            'smarkets_event_address_text']
+            'text']
         new_match_text = convert_smarkets_web_address_to_match_name(
             new_smarkets_event_address_text)
         new_match_date = convert_smarkets_web_address_to_datetime_date_format(
@@ -27,8 +27,9 @@ def view_task(request, task_id):
             match.save()
             return redirect(task)
         except ValidationError:
+            task.delete()
             error = "You can't have an empty Smarkets event address"
-
+            return render(request, 'home.html', {"error": error})
     return render(request, 'task.html',
                   {'task': task, 'error': error})
 
@@ -36,7 +37,7 @@ def view_task(request, task_id):
 def new_task(request):
     task = Task.objects.create()
     new_smarkets_event_address_text = request.POST[
-        'smarkets_event_address_text']
+        'text']
     new_match_text = convert_smarkets_web_address_to_match_name(
         new_smarkets_event_address_text)
     new_match_date = convert_smarkets_web_address_to_datetime_date_format(

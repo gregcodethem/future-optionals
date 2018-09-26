@@ -50,3 +50,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         for row in rows:
             cells.extend(row.find_elements_by_tag_name('td'))
         self.assertIn(cell_text, [cell.text for cell in cells])
+
+    def get_address_input_box(self):
+        return self.browser.find_element_by_id('id_text')
