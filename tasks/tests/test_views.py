@@ -7,6 +7,7 @@ from ..utils import convert_smarkets_web_address_to_match_name
 from ..utils import convert_smarkets_web_address_to_datetime_date_format
 from datetime import date
 from unittest import skip
+from tasks.forms import MatchForm
 
 SMARKETS_EVENT_ADDRESS_BASE = ('https://smarkets.com/event/956523/'
                                'sport/football/spain-la-liga/2018/09/23/')
@@ -20,6 +21,11 @@ class HomePageTest(TestCase):
     def test_uses_home_template(self):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
+
+    def test_home_page_uses_match_form(self):
+        response = self.client.get('/')
+        self.assertIsInstance(
+            response.context['form'], MatchForm)
 
     def test_smarkets_event_web_address_converted_to_match_name(self):
 

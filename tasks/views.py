@@ -2,6 +2,7 @@
 from .utils import convert_smarkets_web_address_to_match_name
 from .utils import convert_smarkets_web_address_to_datetime_date_format
 from django.core.exceptions import ValidationError
+from tasks.forms import MatchForm
 from tasks.models import Match, Task
 from django.shortcuts import redirect, render
 
@@ -52,4 +53,4 @@ def new_task(request):
 
 
 def home_page(request):
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'form': MatchForm()})
