@@ -10,7 +10,8 @@ class Task(models.Model):
 
 
 class Match(models.Model):
+    full_text = models.TextField(default='')
     text = models.TextField(default='')
     task = models.ForeignKey(Task, default=None)
     date = models.DateField(default=date.today)
-    match_text = models.TextField(default='')
+

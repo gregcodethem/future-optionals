@@ -14,7 +14,7 @@ class ItemValidationTest(FunctionalTest):
         # task page
         self.wait_for(lambda:
                       self.browser.find_element_by_css_selector(
-                          '#id_text:invalid'
+                          '#id_full_text:invalid'
                       ))
 
         # She starts typing some text for the new match
@@ -24,7 +24,7 @@ class ItemValidationTest(FunctionalTest):
             'spain-la-liga/2018/09/23/fc-barcelona-vs-girona-fc')
         self.wait_for(lambda:
                       self.browser.find_element_by_css_selector(
-                          '#id_text:valid'
+                          '#id_full_text:valid'
                       ))
 
         # And she can submit it successfully
@@ -38,7 +38,7 @@ class ItemValidationTest(FunctionalTest):
         self.wait_for_cell_in_list_table('fc-barcelona-vs-girona-fc')
         self.wait_for(lambda:
                       self.browser.find_element_by_css_selector(
-                          '#id_text:invalid'
+                          '#id_full_text:invalid'
                       ))
 
         # And she can correct it by filling some text in
@@ -48,7 +48,7 @@ class ItemValidationTest(FunctionalTest):
             'wolverhampton-vs-leicester')
         self.wait_for(lambda:
                       self.browser.find_element_by_css_selector(
-                          '#id_text:valid'
+                          '#id_full_text:valid'
                       ))
         self.get_address_input_box().send_keys(
             Keys.ENTER)

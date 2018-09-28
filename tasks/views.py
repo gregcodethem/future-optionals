@@ -16,15 +16,9 @@ def view_task(request, task_id):
         if form.is_valid():
 
             new_smarkets_event_address_text = request.POST[
-                'text']
-            new_match_text = convert_smarkets_web_address_to_match_name(
-                new_smarkets_event_address_text)
-            new_match_date = convert_smarkets_web_address_to_datetime_date_format(
-                new_smarkets_event_address_text)
-
-            Match.objects.create(text=new_match_text,
-                                 date=new_match_date,
-                                 task=task)
+                'full_text']
+            form.save(for_task=task,
+                      full_text=new_smarkets_event_address_text)
 
             return redirect(task)
 
@@ -37,15 +31,9 @@ def new_task(request):
     if form.is_valid():
         task = Task.objects.create()
         new_smarkets_event_address_text = request.POST[
-            'text']
-        new_match_text = convert_smarkets_web_address_to_match_name(
-            new_smarkets_event_address_text)
-        new_match_date = convert_smarkets_web_address_to_datetime_date_format(
-            new_smarkets_event_address_text)
-        Match.objects.create(text=new_match_text,
-                             date=new_match_date,
-                             task=task)
-        #form.save(for_task=task)
+            'full_text']
+        form.save(for_task=task,
+                  full_text=new_smarkets_event_address_text)
         return redirect(task)
     else:
         return render(request, 'home.html', {"form": form})

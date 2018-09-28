@@ -55,7 +55,7 @@ class HomePageTest(TestCase):
     def test_does_not_return_entire_web_address_in_html(self):
         smarkets_event_address_text = SMARKETS_EVENT_ADDRESS_SAMPLE
         response = self.client.post(
-            '/', data={'text':
+            '/', data={'full_text':
                        smarkets_event_address_text})
         self.assertNotIn(smarkets_event_address_text,
                          response.content.decode(),
@@ -82,15 +82,24 @@ class TaskViewTest(TestCase):
 
     def test_displays_only_matches_for_that_task(self):
         correct_task = Task.objects.create()
-        Match.objects.create(text='match 1', task=correct_task)
-        Match.objects.create(text='match 2', task=correct_task)
+        
+        Match.objects.create(
+            text='match 1',
+            task=correct_task)
+        Match.objects.create(
+            text='match 2',
+            task=correct_task)
 
         other_task = Task.objects.create()
-        Match.objects.create(text='other task match 1', task=other_task)
-        Match.objects.create(text='other task match 2', task=other_task)
+        Match.objects.create(
+            text='other task match 1',
+            task=other_task)
+        Match.objects.create(
+            text='other task match 2',
+            task=other_task)
 
         response = self.client.get(f'/tasks/{correct_task.id}/')
-
+        
         self.assertContains(response, 'match 1')
         self.assertContains(response, 'match 2')
         self.assertNotContains(response, 'other task match 1')
@@ -98,7 +107,7 @@ class TaskViewTest(TestCase):
 
     def test_displays_date_of_match(self):
         task = Task.objects.create()
-        Match.objects.create(text='match 1', date="2018-09-23",
+        Match.objects.create(full_text='match 1', date="2018-09-23",
                              task=task)
         response = self.client.get(f'/tasks/{task.id}/')
         self.assertContains(response, 'Sept. 23, 2018')
@@ -107,7 +116,7 @@ class TaskViewTest(TestCase):
         with transaction.atomic():
             self.client.post(
                 '/tasks/new',
-                data={'text': ''})
+                data={'full_text': ''})
         self.assertEqual(Task.objects.count(), 0)
         self.assertEqual(Match.objects.count(), 0)
 
@@ -117,7 +126,7 @@ class TaskViewTest(TestCase):
 
         self.client.post(
             f'/tasks/{correct_task.id}/',
-            data={'text':
+            data={'full_text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
         )
 
@@ -132,18 +141,17 @@ class TaskViewTest(TestCase):
 
         response = self.client.post(
             f'/tasks/{correct_task.id}/',
-            data={'text':
+            data={'full_text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match for an existing task'}
         )
 
         self.assertRedirects(response, f'/tasks/{correct_task.id}/')
 
-
     def post_invalid_input(self):
         task = Task.objects.create()
         return self.client.post(
             f'/tasks/{task.id}/',
-            data={'text': ''}
+            data={'full_text': ''}
         )
 
     def test_for_invalid_input_nothing_saved_to_db(self):
@@ -169,14 +177,14 @@ class TaskViewTest(TestCase):
         response = self.client.get(f'/tasks/{task.id}/')
         self.assertIsInstance(response.context['form'],
                               MatchForm)
-        self.assertContains(response, 'name="text"')
+        self.assertContains(response, 'name="full_text"')
 
 
 class NewTaskTest(TestCase):
 
     def test_can_save_date_of_match(self):
         self.client.post('/tasks/new',
-                         data={'text':
+                         data={'full_text':
                                SMARKETS_EVENT_ADDRESS_SAMPLE})
         new_match = Match.objects.first()
         self.assertEqual(new_match.date, date(2018, 9, 23))
@@ -184,26 +192,26 @@ class NewTaskTest(TestCase):
     def test_for_invalid_input_renders_home_page_template(self):
         response = self.client.post(
             '/tasks/new',
-            data={'text': ''})
+            data={'full_text': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'home.html')
 
     def test_validation_errors_are_shown_on_home_page(self):
         response = self.client.post(
             '/tasks/new',
-            data={'text': ''})
+            data={'full_text': ''})
         self.assertContains(response, escape(EMPTY_INPUT_ERROR))
 
     def test_for_invalid_input_passes_form_to_template(self):
         response = self.client.post(
             '/tasks/new',
-            data={'text': ''})
+            data={'full_text': ''})
         self.assertIsInstance(response.context['form'], MatchForm)
 
     def test_can_save_a_POST_request(self):
         self.client.post(
             '/tasks/new',
-            data={'text':
+            data={'full_text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match'})
         self.assertEqual(Match.objects.count(), 1)
         new_match = Match.objects.first()
@@ -212,7 +220,7 @@ class NewTaskTest(TestCase):
     def test_redirects_after_POST_request(self):
         response = self.client.post(
             '/tasks/new',
-            data={'text':
+            data={'full_text':
                   SMARKETS_EVENT_ADDRESS_BASE + 'A new match'})
         new_task = Task.objects.first()
         self.assertRedirects(response,

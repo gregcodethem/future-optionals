@@ -1,24 +1,32 @@
 from django import forms
 
+from .utils import convert_smarkets_web_address_to_match_name
+from .utils import convert_smarkets_web_address_to_datetime_date_format
+
 from tasks.models import Match
 
 EMPTY_INPUT_ERROR = "You can't have an empty Smarkets event address"
+
 
 class MatchForm(forms.models.ModelForm):
 
     class Meta:
         model = Match
-        fields = ('text', )
+        fields = ('full_text', )
         widgets = {
-            'text': forms.fields.TextInput(attrs={
+            'full_text': forms.fields.TextInput(attrs={
                 'placeholder': "Enter a Smarkets event web address",
             })
         }
         error_messages = {
-            'text': {
+            'full_text': {
                 'required': EMPTY_INPUT_ERROR}
         }
 
-    def save(self, for_task):
+    def save(self, for_task, full_text):
         self.instance.task = for_task
+        self.instance.text = convert_smarkets_web_address_to_match_name(
+            full_text)
+        self.instance.date = convert_smarkets_web_address_to_datetime_date_format(
+            full_text)
         return super().save()

@@ -52,4 +52,4 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.assertIn(cell_text, [cell.text for cell in cells])
 
     def get_address_input_box(self):
-        return self.browser.find_element_by_id('id_text')
+        return self.browser.find_element_by_id('id_full_text')

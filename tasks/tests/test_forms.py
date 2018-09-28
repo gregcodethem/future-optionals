@@ -3,6 +3,10 @@ from django.test import TestCase
 from tasks.forms import EMPTY_INPUT_ERROR, MatchForm
 from tasks.models import Match, Task
 
+DUMMY_ADDRESS = ('https://smarkets.com/event/957448/'
+                  'sport/football/league-cup/2018/09/26/'
+                  'tottenham-vs-watford-fc')
+
 class ItemFormTest(TestCase):
 
     def test_form_match_input_has_placeholder(self):
@@ -15,17 +19,15 @@ class ItemFormTest(TestCase):
         form = MatchForm(data={'text': ''})
         self.assertFalse(form.is_valid())
         self.assertEqual(
-            form.errors['text'],
+            form.errors['full_text'],
             [EMPTY_INPUT_ERROR]
         )
 
     def test_form_save_handles_saving_to_a_task(self):
         task = Task.objects.create()
         form = MatchForm(
-            data={'text':
-                  'https://smarkets.com/event/957448/'
-                  'sport/football/league-cup/2018/09/26/'
-                  'tottenham-vs-watford-fc'})
-        new_match = form.save(for_task=task)
-        self.assertEqual(new_match,Match.objects.first())
-
+            data={'full_text':
+                  DUMMY_ADDRESS})
+        new_match = form.save(for_task=task,
+                              full_text=DUMMY_ADDRESS)
+        self.assertEqual(new_match, Match.objects.first())
