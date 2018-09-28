@@ -45,6 +45,7 @@ def new_task(request):
         Match.objects.create(text=new_match_text,
                              date=new_match_date,
                              task=task)
+        #form.save(for_task=task)
         return redirect(task)
     else:
         return render(request, 'home.html', {"form": form})

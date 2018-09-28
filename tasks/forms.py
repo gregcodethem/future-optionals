@@ -18,3 +18,7 @@ class MatchForm(forms.models.ModelForm):
             'text': {
                 'required': EMPTY_INPUT_ERROR}
         }
+
+    def save(self, for_task):
+        self.instance.task = for_task
+        return super().save()

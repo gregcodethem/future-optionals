@@ -138,25 +138,6 @@ class TaskViewTest(TestCase):
 
         self.assertRedirects(response, f'/tasks/{correct_task.id}/')
 
-    @skip
-    def test_validation_errors_end_up_on_tasks_page(self):
-
-        try:
-            with transaction.atomic():
-                task = Task.objects.create()
-                self.client.post(
-                    f'/tasks/{task.id}/',
-                    data={'text': ''}
-                )
-        except:
-            pass
-
-        # with transaction.atomic():
-            #self.assertEqual(response.status_code, 200)
-            #self.assertTemplateUsed(response, 'task.html')
-            # expected_error = escape(
-            #"You can't have an empty Smarkets event address")
-            #self.assertContains(response, expected_error)
 
     def post_invalid_input(self):
         task = Task.objects.create()

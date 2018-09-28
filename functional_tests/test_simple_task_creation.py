@@ -19,8 +19,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertIn('future optional bets', header_text)
 
         # She is invited to enter a smarkets web address
-        inputbox = self.browser.find_element_by_id(
-            'id_new_smarkets_event_address')
+        inputbox = self.get_address_input_box()
         self.assertEqual(inputbox.get_attribute('placeholder'),
                          'Enter a Smarkets event web address'
                          )
@@ -55,8 +54,7 @@ class NewVisitorTest(FunctionalTest):
         # She enters:
         # https://smarkets.com/event/957182/sport/football/league-cup/
         # 2018/09/25/wolverhampton-vs-leicester
-        inputbox = self.browser.find_element_by_id(
-            'id_new_smarkets_event_address')
+        inputbox = self.get_address_input_box()
         inputbox.send_keys('https://smarkets.com/event/957182/sport/'
                            'football/league-cup/2018/09/25/'
                            'wolverhampton-vs-leicester')
@@ -72,8 +70,7 @@ class NewVisitorTest(FunctionalTest):
     def test_multiple_users_can_start_tasks_at_different_urls(self):
         # Louise starts a new task
         self.browser.get(self.live_server_url)
-        inputbox = self.browser.find_element_by_id(
-            'id_new_smarkets_event_address')
+        inputbox = self.get_address_input_box()
         inputbox.send_keys(
             'https://smarkets.com/event/958302/'
             'sport/football/premier-league/2018/09/29/'
@@ -104,8 +101,7 @@ class NewVisitorTest(FunctionalTest):
 
         # Peter starts a new task by entering a new
         # smarkets event web address
-        inputbox = self.browser.find_element_by_id(
-            'id_new_smarkets_event_address')
+        inputbox = self.get_address_input_box()
         inputbox.send_keys(
             'https://smarkets.com/event/958299/sport/'
             'football/premier-league/2018/09/29/'
@@ -140,8 +136,7 @@ class NewVisitorTest(FunctionalTest):
         self.browser.get(self.live_server_url)
 
         # And enters in a smarkets event address
-        inputbox = self.browser.find_element_by_id(
-            'id_new_smarkets_event_address')
+        inputbox = self.get_address_input_box()
         text_to_input = ('https://smarkets.com/event/956523/sport/football/'
                          'spain-la-liga/2018/09/23/fc-barcelona-vs-girona-fc')
         inputbox.send_keys(text_to_input)
