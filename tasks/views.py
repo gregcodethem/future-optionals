@@ -14,11 +14,20 @@ def view_task(request, task_id):
     if request.method == 'POST':
         form = MatchForm(data=request.POST)
         if form.is_valid():
-
-            new_smarkets_event_address_text = request.POST[
-                'full_text']
-            form.save(for_task=task,
-                      full_text=new_smarkets_event_address_text)
+            if request.POST['full_text']:
+                new_smarkets_event_address_text = request.POST[
+                    'full_text']
+                form.save(for_task=task,
+                          full_text=new_smarkets_event_address_text)
+            if 'amount_already_bet_home' in request.POST:
+                amount_already_bet_home = request.POST[
+                    'amount_already_bet_home']
+                form.save(for_task=task,
+                          amount_already_bet_home=float(
+                              amount_already_bet_home),
+                          full_text='https://smarkets.com/event/958298/'
+                          'sport/football/premier-league/2018/09/29/'
+                          'west-ham-vs-man-utd')
 
             return redirect(task)
 

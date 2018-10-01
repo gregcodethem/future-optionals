@@ -14,4 +14,6 @@ class Match(models.Model):
     text = models.TextField(default='')
     task = models.ForeignKey(Task, default=None)
     date = models.DateField(default=date.today)
+    amount_already_bet_home = models.FloatField(default=0)
+    amount_already_bet_away = models.FloatField(default=0)
 

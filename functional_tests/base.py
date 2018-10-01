@@ -53,3 +53,23 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def get_address_input_box(self):
         return self.browser.find_element_by_id('id_full_text')
+
+    def get_amount_already_bet_home(self, div_id):
+        # Some code here to get the div_id
+        # Then some more code to get the element like below
+        return self.browser.find_element_by_id('id_amount_already_bet_home')
+
+    def get_amount_already_bet_away(self):
+        return self.browser.find_element_by_id('id_amount_already_bet_away')
+
+    def get_price_already_bet_home(self):
+        return self.browser.find_element_by_id('id_price_already_bet_home')
+
+    def get_price_already_bet_away(self):
+        return self.browser.find_element_by_id('id_price_already_bet_away')
+
+    def get_min_price_to_bet_home(self):
+        return self.browser.find_element_by_id('id_min_price_to_bet_home')
+
+    def get_min_price_to_bet_away(self):
+        return self.browser.find_element_by_id('id_min_price_to_bet_away')

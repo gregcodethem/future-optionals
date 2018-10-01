@@ -82,7 +82,7 @@ class TaskViewTest(TestCase):
 
     def test_displays_only_matches_for_that_task(self):
         correct_task = Task.objects.create()
-        
+
         Match.objects.create(
             text='match 1',
             task=correct_task)
@@ -99,7 +99,7 @@ class TaskViewTest(TestCase):
             task=other_task)
 
         response = self.client.get(f'/tasks/{correct_task.id}/')
-        
+
         self.assertContains(response, 'match 1')
         self.assertContains(response, 'match 2')
         self.assertNotContains(response, 'other task match 1')
@@ -178,6 +178,80 @@ class TaskViewTest(TestCase):
         self.assertIsInstance(response.context['form'],
                               MatchForm)
         self.assertContains(response, 'name="full_text"')
+
+
+class FutureOptionalDataTest(TestCase):
+
+    def test_can_save_amount_already_bet_home(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+
+        Match.objects.create(
+            amount_already_bet_home=10,
+            task=correct_task)
+        self.assertEqual(Match.objects.count(), 1)
+
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.amount_already_bet_home, 10)
+        self.assertEqual(new_match.task, correct_task)
+
+    def test_can_save_amount_already_bet_away(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+
+        Match.objects.create(
+            amount_already_bet_away=10,
+            task=correct_task)
+
+        self.assertEqual(Match.objects.count(), 1)
+
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.amount_already_bet_away, 10)
+        self.assertEqual(new_match.task, correct_task)
+
+    def test_can_save_different_amounts_on_different_matches_home_already(self):
+        task = Task.objects.create()
+        match_1 = Match.objects.create(
+            text='match 1',
+            task=task)
+        match_2 = Match.objects.create(
+            text='match 2',
+            task=task)
+        match_1.amount_already_bet_home = float(11)
+        match_2.amount_already_bet_home = float(22)
+        self.assertEqual(match_1.amount_already_bet_home, float(11))
+        self.assertEqual(match_2.amount_already_bet_home, float(22))
+
+    def test_can_save_POST_request_amount_already_bet_home(self):
+        other_task = Task.objects.create()
+        correct_task = Task.objects.create()
+        self.client.post(f'/tasks/{correct_task.id}/',
+                         data={'full_text': SMARKETS_EVENT_ADDRESS_SAMPLE,
+                               'amount_already_bet_home': '10'})
+        self.assertEqual(Match.objects.count(), 1)
+        new_match = Match.objects.first()
+        self.assertEqual(new_match.amount_already_bet_home, float(10))
+        self.assertEqual(new_match.task, correct_task)
+
+    def test_can_save_different_POST_requests_amount_bet_on_diff_matches(self):
+        task = Task.objects.create()
+        self.client.post(
+            f'/tasks/{task.id}/',
+            data={
+                'full_text': SMARKETS_EVENT_ADDRESS_BASE + 'Match 1'}
+        )
+        self.client.post(
+            f'/tasks/{task.id}/',
+            data={
+                'full_text': SMARKETS_EVENT_ADDRESS_BASE + 'Match 2'}
+        )
+        # I need a way of identifying each match from
+        # something in the html, which then gets fed back into
+        # the post request or form, so when form saves,
+        # it knows which row in the db to update.
+        # Maybe just use the smarkets event address,
+        # so somehow display this in the html and then reference it
+        # also need to access each of the entries in the db in this test.
 
 
 class NewTaskTest(TestCase):

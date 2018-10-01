@@ -16,6 +16,7 @@ class MatchForm(forms.models.ModelForm):
         widgets = {
             'full_text': forms.fields.TextInput(attrs={
                 'placeholder': "Enter a Smarkets event web address",
+                'amount_already_bet_home': forms.fields.TextInput(),
             })
         }
         error_messages = {
@@ -23,10 +24,13 @@ class MatchForm(forms.models.ModelForm):
                 'required': EMPTY_INPUT_ERROR}
         }
 
-    def save(self, for_task, full_text):
+    def save(self, for_task, full_text, **kwargs):
         self.instance.task = for_task
         self.instance.text = convert_smarkets_web_address_to_match_name(
             full_text)
         self.instance.date = convert_smarkets_web_address_to_datetime_date_format(
             full_text)
+        if 'amount_already_bet_home' in kwargs:
+            self.instance.amount_already_bet_home = kwargs[
+                'amount_already_bet_home']
         return super().save()

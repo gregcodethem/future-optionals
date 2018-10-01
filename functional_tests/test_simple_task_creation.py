@@ -2,6 +2,10 @@ from .base import FunctionalTest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+SMARKETS_EVENT_ADDRESS_SAMPLE = ('https://smarkets.com/event/957182/sport/'
+                                 'football/league-cup/2018/09/25/'
+                                 'wolverhampton-vs-leicester')
+
 
 class NewVisitorTest(FunctionalTest):
 
@@ -67,6 +71,52 @@ class NewVisitorTest(FunctionalTest):
         self.check_for_cell_in_list_table('fc-barcelona-vs-girona-fc')
         self.check_for_cell_in_list_table('wolverhampton-vs-leicester')
 
+    def test_user_has_future_bet_selection_options(self):
+        # User comes to the site and enters a smarkets web address
+        self.browser.get(self.live_server_url)
+        inputbox = self.get_address_input_box()
+        inputbox.send_keys(SMARKETS_EVENT_ADDRESS_SAMPLE)
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_cell_in_list_table('wolverhampton-vs-leicester')
+        # User then sees options for 2-0, 2-2 home bet or 0-2, 2-2 away bet
+
+        # User also sees an input box to enter an amount
+        # with the text Amount already bet for each option
+        home_input_box = self.get_amount_already_bet_home(
+            SMARKETS_EVENT_ADDRESS_SAMPLE)
+        self.assertEqual(home_input_box.get_attribute('placeholder'),
+                         'Home: Amount already bet'
+                         )
+        away_input_box = self.get_amount_already_bet_away()
+        self.assertEqual(away_input_box.get_attribute('placeholder'),
+                         'Away: Amount already bet'
+                         )
+
+        # And another userbox with the price already bet
+        home_price_already_bet_input_box = self.get_price_already_bet_home()
+        self.assertEqual(
+            home_price_already_bet_input_box.get_attribute('placeholder'),
+            'Home price already bet'
+        )
+        away_price_already_bet_input_box = self.get_price_already_bet_away()
+        self.assertEqual(
+            away_price_already_bet_input_box.get_attribute('placeholder'),
+            'Away price already bet'
+        )
+        # And another input box with the Text minimimum odds for each
+        home_min_odds_input_box = self.get_min_price_to_bet_home()
+        self.assertEqual(
+            home_min_odds_input_box.get_attribute('placeholder'),
+            'Home min odds'
+        )
+        away_min_odds_input_box = self.get_min_price_to_bet_away()
+        self.assertEqual(
+            away_min_odds_input_box.get_attribute('placeholder'),
+            "Away min odds"
+        )
+
+        self.fail("Finish the Test")
+
     def test_multiple_users_can_start_tasks_at_different_urls(self):
         # Louise starts a new task
         self.browser.get(self.live_server_url)
@@ -126,7 +176,7 @@ class NewVisitorTest(FunctionalTest):
         # The website then presents Louise with various options
         # Score becomes 2-0, then 2-2,
         #self.fail('Finish the test!')
-        #home_lead_then_comeback_text = self.browser.find_element_by_id(
+        # home_lead_then_comeback_text = self.browser.find_element_by_id(
         #    'home_lead_then_comeback_text')
         # home_lead_then_comeback_button =
 
